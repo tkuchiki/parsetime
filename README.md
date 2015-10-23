@@ -1,2 +1,2 @@
-# go-time-parser
+# parsetime
 date/time parser for golang
