@@ -1,7 +1,7 @@
 BUILD_OS_TARGETS = "linux darwin freebsd windows"
 
 test: deps
-	go test ./... -covermode=count -coverprofile=coverage.out
+	go test -v -covermode=count -coverprofile=coverage.out ./...
 
 deps:
 	go get -d -v -t ./...
