@@ -1,7 +1,7 @@
 BUILD_OS_TARGETS = "linux darwin freebsd windows"
 
 test: deps
-	go test ./...
+	go test ./... -covermode=count -coverprofile=coverage.out
 
 deps:
 	go get -d -v -t ./...
@@ -19,6 +19,6 @@ lint: deps
 
 cover: deps
 	go get github.com/axw/gocov/gocov
-	goveralls
+	goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN 
 
 .PHONY: test deps lint cover
