@@ -7,4 +7,12 @@ go:
   - 1.4.2
   - 1.4.3
   - 1.5
+  - 1.5.1
   - tip
+
+script:
+  - make lint
+  - make test
+  
+after_script:
+  - make cover
