@@ -19,6 +19,6 @@ lint: deps
 
 cover: deps
 	go get github.com/axw/gocov/gocov
-	goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN 
+	goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $(COVERALLS_TOKEN)
 
 .PHONY: test deps lint cover
