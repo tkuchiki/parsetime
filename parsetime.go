@@ -29,6 +29,8 @@ func Parse(timestr string) (t time.Time, err error) {
 		ISO8601DatetimeOffset, ISO8601DatetimeOffsetTZD,
 		ISO8601DatetimeFracSecOffset, ISO8601DatetimeFracSecUTC,
 		ISO8601DatetimeFracSec,
+		ISO8601DatetimeOffset2, ISO8601DatetimeOffsetTZD2,
+		ISO8601DatetimeFracSecOffset2,
 		ISO8601TDatetime, ISO8601TDatetimeCompact,
 		ISO8601TDatetimeCompactUTC, ISO8601TDateHour, ISO8601TDateHourMin,
 		ISO8601TDatetimeOffset, ISO8601TDatetimeOffsetTZD,
