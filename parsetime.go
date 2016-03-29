@@ -7,6 +7,190 @@ import (
 
 var invalidDateTimeError error = errors.New("Invalid date/time")
 
+type ParseTime struct {
+	location    *time.Location
+	timeFormats []string
+}
+
+func NewParseTime() ParseTime {
+	return ParseTime{}
+}
+
+func NewParseTimeWithLocalTimezone() ParseTime {
+	zone, offset := time.Now().In(time.Local).Zone()
+
+	return ParseTime{
+		location: time.FixedZone(zone, offset),
+	}
+}
+
+func NewParseTimeWithTimezone(timezone string) (p ParseTime, err error) {
+	var loc *time.Location
+	loc, err = time.LoadLocation(timezone)
+	if err != nil {
+		return p, err
+	}
+
+	p = ParseTime{
+		location: loc,
+	}
+
+	return p, err
+}
+
+func NewParseTimeWithOffset(offset int, zone string) ParseTime {
+	return ParseTime{
+		location: time.FixedZone(zone, offset),
+	}
+}
+
+func NewParseTimeWithLocation(loc *time.Location) ParseTime {
+	return ParseTime{
+		location: loc,
+	}
+}
+
+func (pt *ParseTime) GetFormats() []string {
+	return pt.timeFormats
+}
+
+func (pt *ParseTime) SetFormats(timeFormats []string) {
+	pt.timeFormats = timeFormats
+}
+
+func (pt *ParseTime) GetLocation() *time.Location {
+	return pt.location
+}
+
+func (pt *ParseTime) SetLocation(loc *time.Location) {
+	pt.location = loc
+}
+
+func (pt *ParseTime) ClearLocation() {
+	pt.location = nil
+}
+
+func (pt *ParseTime) Parse(timestr string) (t time.Time, err error) {
+	if len(pt.timeFormats) == 0 {
+		t, err = Parse(timestr)
+	} else {
+		t, err = _parse(timestr, pt.timeFormats)
+	}
+	if err != nil {
+		return t, err
+	}
+
+	if pt.location != nil {
+		return t.In(pt.location), err
+	} else {
+		return t, err
+	}
+}
+
+func (pt *ParseTime) Iso8601(timestr string) (t time.Time, err error) {
+	t, err = Iso8601(timestr)
+	if err != nil {
+		return t, err
+	}
+
+	if pt.location != nil {
+		return t.In(pt.location), err
+	} else {
+		return t, err
+	}
+}
+
+func (pt *ParseTime) Iso8601T(timestr string, localTimezone ...bool) (t time.Time, err error) {
+	t, err = Iso8601T(timestr)
+	if err != nil {
+		return t, err
+	}
+
+	if pt.location != nil {
+		return t.In(pt.location), err
+	} else {
+		return t, err
+	}
+}
+
+func (pt *ParseTime) Rfc850(timestr string) (t time.Time, err error) {
+	t, err = Rfc850(timestr)
+	if err != nil {
+		return t, err
+	}
+
+	if pt.location != nil {
+		return t.In(pt.location), err
+	} else {
+		return t, err
+	}
+}
+
+func (pt *ParseTime) Rfc822(timestr string) (t time.Time, err error) {
+	t, err = Rfc822(timestr)
+	if err != nil {
+		return t, err
+	}
+
+	if pt.location != nil {
+		return t.In(pt.location), err
+	} else {
+		return t, err
+	}
+}
+
+func (pt *ParseTime) Rfc1123(timestr string) (t time.Time, err error) {
+	t, err = Rfc1123(timestr)
+	if err != nil {
+		return t, err
+	}
+
+	if pt.location != nil {
+		return t.In(pt.location), err
+	} else {
+		return t, err
+	}
+}
+
+func (pt *ParseTime) Rfc3339(timestr string) (t time.Time, err error) {
+	t, err = Rfc3339(timestr)
+	if err != nil {
+		return t, err
+	}
+
+	if pt.location != nil {
+		return t.In(pt.location), err
+	} else {
+		return t, err
+	}
+}
+
+func (pt *ParseTime) GoStandard(timestr string) (t time.Time, err error) {
+	t, err = GoStandard(timestr)
+	if err != nil {
+		return t, err
+	}
+
+	if pt.location != nil {
+		return t.In(pt.location), err
+	} else {
+		return t, err
+	}
+}
+
+func (pt *ParseTime) Log(timestr string) (t time.Time, err error) {
+	t, err = Log(timestr)
+	if err != nil {
+		return t, err
+	}
+
+	if pt.location != nil {
+		return t.In(pt.location), err
+	} else {
+		return t, err
+	}
+}
+
 func _parse(timestr string, timeFormats []string) (t time.Time, err error) {
 	for _, format := range timeFormats {
 		t, err = time.Parse(format, timestr)
