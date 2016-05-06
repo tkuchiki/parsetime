@@ -248,7 +248,8 @@ func printTable(p parsetime.ParseTime, header string, times []string) {
 }
 
 func mergeSlice(times ...[]string) []string {
-	mergedTimes := make([]string, 0)
+	var mergedTimes []string
+	mergedTimes = make([]string, 0)
 
 	for _, t := range times {
 		mergedTimes = append(mergedTimes, t...)
