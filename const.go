@@ -1,63 +1,83 @@
 package parsetime
 
-const (
-	Date                          = "200612"
-	MMDDYYYY                      = "1/2/2006"
-	ShortTime                     = "15:4 PM"
-	LongTime                      = "15:4:5 PM"
-	ANSICAsctime                  = "Mon Jan 2 15:4:5 2006"
-	RFC850NoWeekday               = "2-Jan-06 15:4:5 MST"
-	RFC850NoTime                  = "2-Jan-06"
-	BrokenRFC850                  = "Monday, 2-Jan-2006 15:4:5 MST"
-	BrokenRFC850NoWeekday         = "2-Jan-2006 15:4:5 MST"
-	BrokenRFC850NoTime            = "2-Jan-2006"
-	CommonLog                     = "2/Jan/2006:15:4:5 -0700"
-	CommonLogNoTime               = "2/Jan/2006"
-	LsDate                        = "Jan 2 2006"
-	LsTime                        = "Jan 2 15:4"
-	WindowsDir                    = "1-2-06 15:4PM"
-	ISO8601DateHour               = "2006-1-2 15"
-	ISO8601DateHourMin            = "2006-1-2 15:4"
-	ISO8601Datetime               = "2006-1-2 15:4:5"
-	ISO8601DatetimeCompact        = "200612 1545"
-	ISO8601DatetimeCompactUTC     = "200612 1545Z"
-	ISO8601DatetimeOffset         = "2006-1-2 15:4:5-07:00"
-	ISO8601DatetimeOffsetTZD      = "2006-1-2 15:4:5-07:00 MST"
-	ISO8601DatetimeFracSecOffset  = "2006-1-2 15:4:5.999999999-07:00"
-	ISO8601DatetimeOffset2        = "2006-1-2 15:4:5 -07:00"
-	ISO8601DatetimeOffsetTZD2     = "2006-1-2 15:4:5 -07:00 MST"
-	ISO8601DatetimeFracSecOffset2 = "2006-1-2 15:4:5.999999999 -07:00"
-	ISO8601DatetimeFracSecUTC     = "2006-1-2 15:4:5.999999999Z"
-	ISO8601DatetimeFracSec        = "2006-1-2 15:4:5.999999999"
-	ISO8601TDatetime              = "2006-1-2T15:4:5"
-	ISO8601TDatetimeCompact       = "200612T1545"
-	ISO8601TDatetimeCompactUTC    = "200612T1545Z"
-	ISO8601TDateHour              = "2006-1-2T15"
-	ISO8601TDateHourMin           = "2006-1-2T15:4"
-	ISO8601TDatetimeOffset        = "2006-1-2T15:4:5-07:00"
-	ISO8601TDatetimeOffsetTZD     = "2006-1-2T15:4:5-07:00 MST"
-	ISO8601TDatetimeFracSecOffset = "2006-1-2T15:4:5.999999999-07:00"
-	ISO8601TDatetimeFracSecUTC    = "2006-1-2T15:4:5.999999999Z"
-	ISO8601TDatetimeFracSec       = "2006-1-2T15:4:5.999999999"
-	ISO8601Date                   = "2006-1-2"
-	ISO8601Time                   = "15:4:5"
-	ISO8601TimeOffset             = "15:4:5-07:00"
-	MMDDYYYYDatetime              = "1/2/2006 15:4:5"
+import (
+	"strings"
+)
 
-	// time/format.go
-	// ANSIC       // "Mon Jan _2 15:04:05 2006"
-	// UnixDate    // "Mon Jan _2 15:04:05 MST 2006"
-	// RubyDate    // "Mon Jan 02 15:04:05 -0700 2006"
-	// RFC822      // "02 Jan 06 15:04 MST"
-	// RFC822Z     // "02 Jan 06 15:04 -0700" // RFC822 with numeric zone
-	// RFC850      // "Monday, 02-Jan-06 15:04:05 MST"
-	// RFC1123     // "Mon, 02 Jan 2006 15:04:05 MST"
-	// RFC1123Z    // "Mon, 02 Jan 2006 15:04:05 -0700" // RFC1123 with numeric zone
-	// RFC3339     // "2006-01-02T15:04:05Z07:00"
-	// RFC3339Nano // "2006-01-02T15:04:05.999999999Z07:00"
-	// Kitchen     // "3:04PM"
-	// Stamp       // "Jan _2 15:04:05"
-	// StampMilli  // "Jan _2 15:04:05.000"
-	// StampMicro  // "Jan _2 15:04:05.000000"
-	// StampNano   // "Jan _2 15:04:05.000000000"
+const (
+	year         = `(2[0-9]{3}|19[7-9][0-9])`
+	month        = `(1[012]|0?[1-9])`
+	day          = `([12][0-9]|3[01]|0?[1-9])`
+	hour         = `(2[0-3]|[01]?[0-9])`
+	min          = `([0-5]?[0-9])`
+	sec          = min
+	nsec         = `(?:[.])?([0-9]{1,9})?`
+	weekday      = `(?:Mon|Monday|Tue|Tuesday|Wed|Wednesday|Thu|Thursday|Fri|Friday|Sat|Saturday|Sun|Sunday)`
+	monthAbbr    = `(Jan|January|Feb|Februray|Mar|March|Apr|April|May|Jun|June|Jul|July|Aug|August|Sep|September|Oct|October|Nov|November|Dec|December|1[012]|0?[1-9])`
+	offset       = `(Z|[+-][01][1-9]:[0-9]{2})?`
+	zone         = `(?:[a-zA-Z0-9+-]{3,6})?`
+	ymdSep       = `[ /.-]?`
+	hmsSep       = `[ :.]?`
+	t            = `(?:t|T|\s*)?`
+	s            = `(?:\s*)?`
+	ampm         = `([aApP][mM])`
+	ampmHour     = `(1[01]|[0]?[0-9])`
+	shortYear    = `(2[0-9]{3}|19[7-9][0-9]|[0-9]{2})`
+	offsetZone   = `([+-][01][1-9]:[0-9]{2}|[a-zA-Z0-9+-]{3,6})?`
+	usOffsetZone = `(?:[(])?([+-][01][1-9]:[0-9]{2}|[a-zA-Z0-9+-]{3,6})?(?:[)])?`
+)
+
+// Regular expressions
+var (
+	// ISO8601, RFC3339
+	ISO8601 = strings.Join([]string{
+		`(?:`, year, ymdSep, month, ymdSep, day, `)?`, t,
+		`(?:`, hour, hmsSep, min, hmsSep, sec, `?`, nsec, `)?`,
+		s, offset, s, zone,
+	}, "")
+
+	// RFC822, RFC850, RFC1123
+	RFC8xx1123 = strings.Join([]string{
+		`(?:`, weekday, `,?`, s, `)?`, day, ymdSep, monthAbbr, ymdSep, shortYear,
+		hmsSep, `(?:`, hour, hmsSep, min, hmsSep, sec, `?`, nsec, `)?`,
+		s, offsetZone,
+	}, "")
+
+	ANSIC = strings.Join([]string{
+		`(?:`, weekday, s, `)?`, monthAbbr, ymdSep, day, ymdSep,
+		`(?:`, hour, hmsSep, min, hmsSep, sec, `?`, nsec, `)?`,
+		s, `(?:`, offsetZone, s, year, `)?`,
+	}, "")
+
+	US = strings.Join([]string{
+		`(?:`, monthAbbr, ymdSep, day, `(?:,)?`, ymdSep, shortYear, `)?`, s, `(?:at)?`, s,
+		`(?:`, hour, hmsSep, min, hmsSep, sec, `?`, nsec, `)?`,
+		s, ampm, `?`, s, usOffsetZone,
+	}, "")
+
+	Months = map[string]int{
+		"Jan":       1,
+		"January":   1,
+		"Feb":       2,
+		"Februray":  2,
+		"Mar":       3,
+		"March":     3,
+		"Apr":       4,
+		"April":     4,
+		"May":       5,
+		"Jun":       6,
+		"June":      6,
+		"Jul":       7,
+		"July":      7,
+		"Aug":       8,
+		"August":    8,
+		"Sep":       9,
+		"September": 9,
+		"Oct":       10,
+		"October":   10,
+		"Nov":       11,
+		"November":  11,
+		"Dec":       12,
+		"December":  12,
+	}
 )

@@ -13,3 +13,5 @@ script:
   
 after_script:
   - make cover
+
+sodo: false
