@@ -230,7 +230,7 @@ func printTable(p parsetime.ParseTime, header string, times []string) {
 	fmt.Println("")
 	fmt.Println("")
 
-	table := clitable.New([]string{"String", "Time"})
+	table := clitable.New([]string{"Input string", "_time.Time"})
 
 	for _, v := range times {
 		t, err := p.Parse(v)
@@ -239,8 +239,10 @@ func printTable(p parsetime.ParseTime, header string, times []string) {
 			fmt.Println()
 		}
 
-		table.AddRow(map[string]interface{}{"String": v, "Time": t.String()})
+		table.AddRow(map[string]interface{}{"Input string": v, "_time.Time": t.String()})
 	}
+
+	table.Markdown = true
 
 	table.Print()
 }
