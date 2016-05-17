@@ -935,6 +935,18 @@ func TestNewParseTime(test *testing.T) {
 	assert.Equal(loc.String(), loc2.String(), "Incorrect location")
 }
 
+func TestNewParseTimeEmptyString(test *testing.T) {
+	assert := assert.New(test)
+
+	p, _ := NewParseTime("")
+
+	loc := p.GetLocation()
+	zone, offset := time.Now().In(time.Local).Zone()
+	loc2 := time.FixedZone(zone, offset)
+
+	assert.Equal(loc.String(), loc2.String(), "Incorrect location")
+}
+
 func TestNewParseTimeLocation(test *testing.T) {
 	assert := assert.New(test)
 

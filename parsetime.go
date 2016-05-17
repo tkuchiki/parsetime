@@ -53,14 +53,19 @@ func NewParseTime(location ...interface{}) (ParseTime, error) {
 		case *time.Location:
 			loc = val
 		case string:
-			loc, err = time.LoadLocation(val)
-			if err != nil {
-				var offset int
-				offset, err = timezone.GetOffset(val)
+			if val == "" {
+				zone, offset := time.Now().In(time.Local).Zone()
+				loc = time.FixedZone(zone, offset)
+			} else {
+				loc, err = time.LoadLocation(val)
 				if err != nil {
-					return ParseTime{}, errInvalidTimezone
+					var offset int
+					offset, err = timezone.GetOffset(val)
+					if err != nil {
+						return ParseTime{}, errInvalidTimezone
+					}
+					loc = time.FixedZone(val, offset)
 				}
-				loc = time.FixedZone(val, offset)
 			}
 		default:
 			return ParseTime{}, fmt.Errorf("Invalid type: %T", val)
