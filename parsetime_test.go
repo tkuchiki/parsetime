@@ -1,9 +1,10 @@
 package parsetime
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var loc = createLocation("US/Arizona")
@@ -961,7 +962,7 @@ func TestNewParseTimeTimezone(test *testing.T) {
 	assert := assert.New(test)
 
 	p, _ := NewParseTime("GMT+12")
-	loc2, _ := time.LoadLocation("Etc/GMT+12")
+	loc2, _ := time.LoadLocation("Etc/GMT-12")
 	t, _ := p.Parse("2006-01-02T15:04:05")
 	t2, _ := time.ParseInLocation("2006-01-02T15:04:05", "2006-01-02T15:04:05", loc2)
 

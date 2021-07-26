@@ -3,13 +3,14 @@ package parsetime
 import (
 	"errors"
 	"fmt"
-	"github.com/tkuchiki/go-timezone"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
+
+	"github.com/tkuchiki/go-timezone"
 )
 
 var (
@@ -59,12 +60,12 @@ func NewParseTime(location ...interface{}) (ParseTime, error) {
 			} else {
 				loc, err = time.LoadLocation(val)
 				if err != nil {
-					var offset int
-					offset, err = timezone.GetOffset(val)
-					if err != nil {
-						return ParseTime{}, errInvalidTimezone
+					tz := timezone.New()
+					tzAbbrInfo, err := tz.GetTzAbbreviationInfo(val)
+					if err != nil && !(isRFC2822Abbrs(val)) {
+						return ParseTime{}, err
 					}
-					loc = time.FixedZone(val, offset)
+					loc = time.FixedZone(val, tzAbbrInfo[0].Offset())
 				}
 			}
 		default:
@@ -113,13 +114,13 @@ func parseOffset(value string) (*time.Location, error) {
 
 	_, err = time.Parse("MST", value)
 	if err == nil {
-		var offset int
-		offset, err = timezone.GetOffset(value)
-		if err != nil {
+		tz := timezone.New()
+		tzAbbrInfo, err := tz.GetTzAbbreviationInfo(value)
+		if err != nil && !(isRFC2822Abbrs(value)) {
 			return loc, err
 		}
 
-		return time.FixedZone(value, offset), nil
+		return time.FixedZone(value, tzAbbrInfo[0].Offset()), nil
 	}
 
 	return loc, errInvalidOffset
@@ -536,4 +537,8 @@ func (pt *ParseTime) Parse(value string) (time.Time, error) {
 	sort.Sort(times)
 
 	return times[0].time, nil
+}
+
+func isRFC2822Abbrs(abbr string) bool {
+	return abbr == "EST" || abbr == "EDT" || abbr == "CST" || abbr == "CDT" || abbr == "MST" || abbr == "MDT" || abbr == "PST" || abbr == "PDT"
 }
